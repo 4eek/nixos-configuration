@@ -12,7 +12,7 @@
       ./bluetooth.nix
       ./fonts.nix
       ./zsh.nix
-      ./ipfs.nix
+      #./ipfs.nix
     ];
 
   # Enable OpenGL support
@@ -68,7 +68,6 @@
     aspell
     aspellDicts.en
     awscli
-    beam.packages.erlangR20.elixir
     bind
     cabal2nix
     cabal-install
@@ -83,6 +82,7 @@
     encfs
     evince
     exfat
+    fasd
     feh
     firefox
     firefox-devedition-bin
@@ -95,26 +95,31 @@
     gnumake
     gnupg
     go
+    helmfile
+    keybase
+    keybase-gui
+    kops
     kubectl
     kubernetes
     kubernetes-helm
     htop
     inotify-tools
+    jq
     jnettop
+    kbfs
     kdiff3
     keychain
     libreoffice
     lsof
     maim
+    mc
     minikube
+    mongodb
     neovim
     networkmanagerapplet
     nix-prefetch-scripts
-    nix-repl
-    nix-zsh-completions
     nodejs
     octave
-    oh-my-zsh
     openarena
     openconnect
     openconnect_openssl
@@ -132,6 +137,7 @@
     sqlite
     terminator
     termite
+    terraform
     thunderbird
     tigervnc
     tmux
@@ -153,6 +159,7 @@
     xscreensaver
     zathura
     zeal
+    zoom-us
     zsh
     zsh-autosuggestions
     zsh-completions
@@ -254,6 +261,10 @@
     host    all             all             ::1/128                 trust
   '';
 
+  # Enable Keybase services
+  services.keybase.enable = true;
+  services.kbfs.enable = true;
+
   # Enable docker for container management.
   # This only enables the service, but does not add users to the docker group.
   virtualisation.docker.enable = true;
@@ -282,6 +293,6 @@
   # compatible, in order to avoid breaking some software such as database
   # servers. You should change this only after NixOS release notes say you
   # should.
-  system.nixos.stateVersion = "17.09"; # Did you read the comment?
+  system.stateVersion = "17.09"; # Did you read the comment?
 
 }
