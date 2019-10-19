@@ -4,6 +4,11 @@
 
 { config, lib, pkgs, ... }:
 
+let
+  unstableTarball =
+    fetchTarball
+      https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz;
+in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -12,8 +17,12 @@
       ./bluetooth.nix
       ./fonts.nix
       ./zsh.nix
+      ./spacevim.nix
       #./ipfs.nix
     ];
+
+  # Supposedly better for the SSD.
+  fileSystems."/".options = [ "noatime" "nodiratime" "discard" ];
 
   # Enable OpenGL support
   hardware.opengl = {
@@ -37,8 +46,9 @@
   boot.initrd.luks.devices = [
     {
       name = "root";
-      device = "/dev/nvme0n1p2";
+      device = "/dev/disk/by-uuid/42f39571-ac38-4678-9fd0-4c2dd067efd2";
       preLVM = true;
+      allowDiscards = true;
     }
   ];
 
@@ -56,15 +66,25 @@
   # Set your time zone.
   time.timeZone = "Africa/Johannesburg";
 
-  # Allow unfree so we can get firefox-dev, etc.
-  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config = {
+    # Allow unfree so we can get firefox-dev, etc.
+    allowUnfree = true;
+    # Allow usage of packages from nixos-unstable
+    packageOverrides = pkgs: {
+      unstable = import unstableTarball {
+        config = config.nixpkgs.config;
+      };
+    };
+  };
 
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages = (with pkgs; [
     ag
+    unstable.any-nix-shell
     arandr
     aria2
+    ark
     aspell
     aspellDicts.en
     awscli
@@ -74,13 +94,16 @@
     calibre
     cargo
     chromium
+    google-chrome
     cifs-utils
     cryptsetup
+    dialog
     direnv
     dmenu
     emacs
     encfs
     evince
+    exa
     exfat
     fasd
     feh
@@ -89,19 +112,20 @@
     gcc
     gettext
     ghc
-    git
+    gitAndTools.gitFull
+    gitAndTools.git-extras
+    gitAndTools.gita
     gitAndTools.hub
+    gitAndTools.lab
     gitAndTools.tig
+    gitAndTools.gitAnnex
+    gitAndTools.diff-so-fancy
+    gitAndTools.grv
+    unstable.git-repo-updater
     gnumake
     gnupg
     go
     helmfile
-    keybase
-    keybase-gui
-    kops
-    kubectl
-    kubernetes
-    kubernetes-helm
     htop
     inotify-tools
     jq
@@ -109,35 +133,56 @@
     kbfs
     kdiff3
     keychain
+    keybase
+    keybase-gui
+    kops
+    krita
+    kubectl
+    kubernetes
+    kubernetes-helm
     libreoffice
     lsof
     maim
     mc
     minikube
     mongodb
+    nox
+    unstable.mongodb-compass
     neovim
     networkmanagerapplet
     nix-prefetch-scripts
     nodejs
+    nodePackages.eslint
+    nmap
+    obs-studio
     octave
     openarena
     openconnect
     openconnect_openssl
+    openvpn
     pass
+    unstable.postman
     powertop
+    unstable.protonvpn-cli
     qtpass
     ranger
+    #unstable.rescuetime
+    ripgrep
     rustc
     rustup
     rxvt_unicode-with-plugins
     scrot
+    unstable.signal-desktop
+    slack
     slop
     spectacle
     stalonetray
+    unstable.standardnotes
     sqlite
+    unstable.tdesktop
     terminator
     termite
-    terraform
+    terraform_0_12
     thunderbird
     tigervnc
     tmux
@@ -146,13 +191,13 @@
     unzip
     upower
     vagrant
+    unstable.vscode-with-extensions
     vim
     virtualbox
     vlc
     wget
     which
     xcompmgr
-    xfce.thunar
     xorg.xbacklight
     xclip
     xorg.xev
@@ -252,7 +297,7 @@
 
   # Enable Postgesql service
   services.postgresql.enable = true;
-  services.postgresql.package = pkgs.postgresql100;
+  services.postgresql.package = pkgs.postgresql_11;
   services.postgresql.authentication = lib.mkForce ''
     # Generated file; do not edit!
     # TYPE  DATABASE        USER            ADDRESS                 METHOD
@@ -293,6 +338,6 @@
   # compatible, in order to avoid breaking some software such as database
   # servers. You should change this only after NixOS release notes say you
   # should.
-  system.stateVersion = "17.09"; # Did you read the comment?
+  system.stateVersion = "19.03"; # Did you read the comment?
 
 }
