@@ -1,16 +1,15 @@
 { config, pkgs, ... }:
 
-{	
+{
   programs.zsh = {
     enable = true;
-    enableCompletion = true;
     autosuggestions.enable = true;
     syntaxHighlighting.enable = true;
-    # Aliases 
-    shellAliases = { 
+    # Aliases
+    shellAliases = {
       c = "clear";
       lg = "lazygit";
-      vim = "nvim";
+      #vim = "nvim";
       vi = "vim";
       tf = "terraform";
 
@@ -28,9 +27,9 @@
     # Enable oh-my-zsh
     ohMyZsh = {
       enable = true;
-      theme = "robbyrussell";
+      theme = "spaceship";
       plugins = [
-        "aws" 
+        "aws"
         "command-not-found"
         "common-aliases"
         "composer"
@@ -46,10 +45,8 @@
         "helm"
         "history-substring-search"
         "kops"
-	"kube-ps1"
         "kubectl"
         "mix"
-	"nix-shell"
         "node"
         "npm"
         "postgres"
@@ -61,17 +58,18 @@
         "vi-mode"
         "web-search"
         "yarn"
-        "zsh-autosuggestions"
-        "zsh-completions"
         "zsh_reload"
+      ];
+      customPkgs = with pkgs; [
+        spaceship-prompt
       ];
     };
     # Custom .zshrc type setup
     interactiveShellInit = ''
       # z - jump around
       source ${pkgs.fetchurl {url = "https://github.com/rupa/z/raw/2ebe419ae18316c5597dd5fb84b5d8595ff1dde9/z.sh"; sha256 = "0ywpgk3ksjq7g30bqbhl9znz3jh6jfg8lxnbdbaiipzgsy41vi10";}}
-      export PROMPT=$PROMPT'$(kube_ps1) '
-      export EDITOR='nvim'
+      export EDITOR='vim'
+      eval "$(${pkgs.direnv}/bin/direnv hook zsh)"
     '';
   };
 }

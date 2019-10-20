@@ -12,6 +12,7 @@
         vimrcConfig.vam.knownPlugins = pkgs.vimPlugins;
         vimrcConfig.vam.pluginDictionaries = [
           { names = [
+            "spacevim"
             "vim-gitgutter"
             #dbakker/vim-projectroot
             "vim-easymotion"
@@ -24,6 +25,7 @@
             "commentary"
             "vim-eunuch"
             "fugitive"
+            "deoplete-nvim"
 
             #haya14busa/incsearch.vim
             # "vim-leader-guide"

@@ -17,7 +17,6 @@ in
       ./bluetooth.nix
       ./fonts.nix
       ./zsh.nix
-      ./spacevim.nix
       #./ipfs.nix
     ];
 
@@ -100,6 +99,7 @@ in
     dialog
     direnv
     dmenu
+    unstable.dropbox
     emacs
     encfs
     evince
@@ -148,7 +148,7 @@ in
     mongodb
     nox
     unstable.mongodb-compass
-    neovim
+    #neovim
     networkmanagerapplet
     nix-prefetch-scripts
     nodejs
@@ -192,7 +192,9 @@ in
     upower
     vagrant
     unstable.vscode-with-extensions
-    vim
+    (
+      import ./vim.nix
+    )
     virtualbox
     vlc
     wget
@@ -202,13 +204,10 @@ in
     xclip
     xorg.xev
     xscreensaver
+    yarn
     zathura
     zeal
     zoom-us
-    zsh
-    zsh-autosuggestions
-    zsh-completions
-    zsh-navigation-tools
 
     # For clipboard syncing
     xsel
@@ -338,6 +337,6 @@ in
   # compatible, in order to avoid breaking some software such as database
   # servers. You should change this only after NixOS release notes say you
   # should.
-  system.stateVersion = "19.03"; # Did you read the comment?
+  system.stateVersion = "19.09"; # Did you read the comment?
 
 }

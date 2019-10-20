@@ -1,507 +1,220 @@
-{ config, pkgs, ... }:
-
-{
-
-  environment.systemPackages = with pkgs; [
-  (vim_configurable.customize {
-        name = "vim";
-        vimrcConfig.customRC = ''
-
-" General {
-    set nocompatible
-    filetype plugin indent on   " Automatically detect file types.
-    syntax on                   " Syntax highlighting
-    set mouse=a                 " Automatically enable mouse usage
-    set mousehide               " Hide the mouse cursor while typing
-    scriptencoding utf-8
-    "use system clipboard
-    set clipboard=unnamed,unnamedplus
-    "automatically switch to the current file directory  when a new buffer is opened
-    "autocmd BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
-    set autochdir                       " sets the working directory to the current file.
-    set shortmess+=filmnrxoOtT          " Abbrev. of messages (avoids 'hit enter')
-    set viewoptions=folds,options,cursor,unix,slash " Better Unix / Windows compatibility
-    " {block|insert|all|onemore} sets where the cursor can be positioned when there is no actual character.
-    set virtualedit=block,onemore
-    set diffopt+=context:1000000  " don't fold
-    set history=1000                    " Store a ton of history (default is 20)
-    set hidden                          " Allow buffer switching without saving
-    set iskeyword-=.                    " '.' is an end of word designator
-    set iskeyword-=#                    " '#' is an end of word designator
-    set iskeyword-=-                    " '-' is an end of word designator
-
-    set ttimeout
-    set ttimeoutlen=1000
-
-    if !empty(&viminfo)
-      set viminfo^=!
-    endif
-
-    set sessionoptions="buffers,curdir"
-
-    " Instead of reverting the cursor to the last position in the buffer, we
-    " set it to the first line when editing a git commit message
-    au FileType gitcommit au! BufEnter COMMIT_EDITMSG call setpos('.', [0, 1, 1, 0])
-    au FileType gitcommit setlocal spell
-
-    " http://vim.wikia.com/wiki/Restore_cursor_to_file_position_in_previous_editing_session
-    " Restore cursor to file position in previous editing session
-
-    function! ResCur()
-        if line("'\"") <= line("$")
-            normal! g`"
-            return 1
-        endif
-    endfunction
-
-    augroup resCur
-        autocmd!
-        autocmd BufWinEnter * call ResCur()
-    augroup END
-
-    " Setting up the directories {
-        set backup                  " Backups are nice ...
-            set undofile                " So is persistent undo ...
-            set undolevels=1000         " Maximum number of changes that can be undone
-            set undoreload=10000        " Maximum number lines to save for undo on a buffer reload
-    "}
-"}
-
-" Vim UI {
-"use the light solarized theme:
-    "colorscheme solarized
-    let g:solarized_termcolors=256
-    color solarized             " Load a colorscheme
-    set background=light
-    highlight Normal ctermbg=white
-    highlight  LineNr ctermbg=lightgrey ctermfg=None
-    " Default Colors for CursorLine
-    highlight  CursorLine ctermbg=lightgrey ctermfg=None
-    set colorcolumn=80
-    highlight ColorColumn ctermbg=lightgrey
-    hi Folded ctermbg=White
-
-
-    "hybrid line number:
-    set number
-    set relativenumber
-
-        set ruler                   " Show the ruler
-        set rulerformat=%30(%=\:b%n%y%m%r%w\ %l,%c%V\ %P%) " A ruler on steroids
-        set showcmd                 " Show partial commands in status line and
-                                    " Selected characters/lines in visual mode
-
-        set laststatus=2
-
-        " Broken down into easily includeable segments
-        set statusline=%<%f\                     " Filename
-        set statusline+=%w%h%m%r                 " Options
-        set statusline+=%{fugitive#statusline()} " Git Hotness
-        set statusline+=\ [%{&ff}/%Y]            " Filetype
-        set statusline+=\ [%{getcwd()}]          " Current dir
-        set statusline+=%=%-14.(%l,%c%V%)\ %p%%  " Right aligned file nav info
-
-    set tabpagemax=15               " Only show 15 tabs
-    set showmode                    " Display the current mode
-    set cursorline                  " Highlight current line
-    set backspace=indent,eol,start  " Backspace for dummies
-    set showmatch                   " Show matching brackets/parenthesis
-    set incsearch                   " Find as you type search
-    set hlsearch                    " Highlight search terms
-    set gdefault                    " makes the s% flag global by default. Use /g to turn the global option off.
-    set ignorecase                  " Case insensitive search
-    set smartcase                   " Case sensitive when uc present
-    set wildmenu                    " Show list instead of just completing
-    set wildmode=list:longest,full  " Command <Tab> completion, list matches, then longest common part, then all.
-    set whichwrap=b,s,h,l,<,>,[,]   " Backspace and cursor keys wrap too
-    set scrolljump=5                " Lines to scroll when cursor leaves screen
-    set scrolloff=3                 " Minimum lines to keep above and below cursor
-    set list
-    set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic whitespace
-    set splitright                  " split vertical splits to the right
-    set splitbelow                  " split horizontal splits to the bottom
-
-    function! ILikeHelpToTheRight()
-      if !exists('w:help_is_moved') || w:help_is_moved != "right"
-        wincmd L
-        let w:help_is_moved = "right"
-      endif
-    endfunction
-
-    augroup HelpPages
-      autocmd FileType help nested call ILikeHelpToTheRight()
-    augroup END
-
-" }
-
-" Formatting {
-
-    set wrap                        " Wrap long lines
-    set autoindent                  " Indent at the same level of the previous line
-    set shiftwidth=4                " Use indents of 4 spaces
-    set expandtab                   " Tabs are spaces, not tabs
-    set tabstop=4                   " An indentation every four columns
-    set softtabstop=4               " Let backspace delete indent
-    "set matchpairs+=<:>             " Match, to be used with %
-    set pastetoggle=<F2>           " pastetoggle (sane indentation on pastes)
-    "set comments=sl:/*,mb:*,elx:*/  " auto format comment blocks
-    " Remove trailing whitespaces and ^M chars
-    autocmd FileType  faust,c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl,sql autocmd BufWritePre <buffer> call StripTrailingWhitespace()
-
-
-    " wiki files get VimOutliner.
-    "autocmd BufNewFile,BufRead *.wiki set filetype=votl
-
-    " text and email get flowed format:
-    " autocmd FileType mail,text,markdown,md,votl    call Mail_Style()
-    " fun! Mail_Style()
-    "     " Support Format-Flowed in email (mutt).
-    "     setlocal fo+=aw tw=72
-    "     setlocal spell
-    " endfun
-
-    " Don't use modelines in e-mail messages, avoid trojan horses and nasty
-    " "jokes" (e.g., setting 'textwidth' to 5).
-    autocmd FileType  mail setlocal nomodeline
-
-    " Ensure tabs in Makefiles.
-    autocmd FileType make setlocal noexpandtab
-" }
-
-" Key (re)Mappings {
-
-    " the biggest key for the most used function
-    noremap <Space> :
-    " The default leader is '\', but many people prefer ',' as it's in a standard
-    " location.
-    let mapleader = ','
-    let maplocalleader = ',,'
-
-    " redraw screen, also turn off search highlighting, and reload the
-    " file if it changed (works in conjunction with `set autoread`)
-    nnoremap <C-L> :nohlsearch<CR>:redraw<CR>:checktime<CR> <C-L>
-
-    " Wrapped lines goes down/up to next row, rather than next line in file.
-    noremap j gj
-    noremap k gk
-
-    " End/Start of line motion keys act relative to row/wrap width in the
-    " presence of `:set wrap`, and relative to line for `:set nowrap`.
-    " Same for 0, home, end, etc
-    function! WrapRelativeMotion(key, ...)
-        let vis_sel=""
-        if a:0
-            let vis_sel="gv"
-        endif
-        if &wrap
-            execute "normal!" vis_sel . "g" . a:key
-        else
-            execute "normal!" vis_sel . a:key
-        endif
-    endfunction
-
-    " Map g* keys in Normal, Operator-pending, and Visual+select
-    noremap $ :call WrapRelativeMotion("$")<CR>
-    noremap <End> :call WrapRelativeMotion("$")<CR>
-    noremap 0 :call WrapRelativeMotion("0")<CR>
-    noremap <Home> :call WrapRelativeMotion("0")<CR>
-    noremap ^ :call WrapRelativeMotion("^")<CR>
-    " Overwrite the operator pending $/<End> mappings from above
-    " to force inclusive motion with :execute normal!
-    onoremap $ v:call WrapRelativeMotion("$")<CR>
-    onoremap <End> v:call WrapRelativeMotion("$")<CR>
-    " Overwrite the Visual+select mode mappings from above
-    " to ensure the correct vis_sel flag is passed to function
-    vnoremap $ :<C-U>call WrapRelativeMotion("$", 1)<CR>
-    vnoremap <End> :<C-U>call WrapRelativeMotion("$", 1)<CR>
-    vnoremap 0 :<C-U>call WrapRelativeMotion("0", 1)<CR>
-    vnoremap <Home> :<C-U>call WrapRelativeMotion("0", 1)<CR>
-    vnoremap ^ :<C-U>call WrapRelativeMotion("^", 1)<CR>
-    " Stupid shift key fixes
-            command! -bang -nargs=* -complete=file E e<bang> <args>
-            command! -bang -nargs=* -complete=file W w<bang> <args>
-            command! -bang -nargs=* -complete=file Wq wq<bang> <args>
-            command! -bang -nargs=* -complete=file WQ wq<bang> <args>
-            command! -bang Wa wa<bang>
-            command! -bang WA wa<bang>
-            command! -bang Q q<bang>
-            command! -bang QA qa<bang>
-            command! -bang Qa qa<bang>
-
-        cmap Tabe tabe
-
-    " Yank from the cursor to the end of the line, to be consistent with C and D.
-    nnoremap Y y$
-
-    "go to first and last char of line
-    nnoremap H ^
-    nnoremap L g_
-    vnoremap H ^
-    vnoremap L g_
-
-    " Visual shifting (does not exit Visual mode)
-    vnoremap < <gv
-    vnoremap > >gv
-
-    " Allow using the repeat operator with a visual selection (!)
-    " http://stackoverflow.com/a/8064607/127816
-    vnoremap . :normal .<CR>
-
-    " simpler folds
-    " zo opens all folds
-    " zc closes all folds
-    " za to toggle each fold
-    nnoremap zo zR
-    nnoremap zc zM
-
-    "faust
-    autocmd BufNewFile,BufRead *.dsp set filetype=faust
-    autocmd BufNewFile,BufRead *.lib set filetype=faust
-
-    " <!----------------------------" gcc compile C files----------------------------------------!>
-    autocmd filetype c nnoremap <F5> :w <CR>:!gcc % -o %:r && ./%:r<CR>
-
-    " <!----------------------------" faust compile files----------------------------------------!>
-    autocmd filetype faust nnoremap <F5> :w <CR>:!faust2jack -osc % &&  ./%   <CR>
-    "autocmd filetype faust nnoremap <F6> :w <CR>:!faust2jack -osc % &&  ./%  & sleep 1 && jack_disconnect %:out_0 system:playback_1 && jack_disconnect %:out_1 system:playback_2 && jack_connect %:out_0 ardour:insert\ 1/audio_return\ 1 && jack_connect %:out_1 ardour:insert\ 1/audio_return\ 2 && jack_connect %:in_0 ardour:insert\ 1/audio_send\ 1 && jack_connect %:in_1 ardour:insert\ 1/audio_send\ 2 <CR>
-    autocmd filetype faust nnoremap <F7> :w <CR>:!faust2firefox % <CR>
-
-    autocmd filetype help set keywordprg=:help
-
-    "buffer navigation:
-    nmap <silent> <Left> :bp<CR>
-    nmap <silent> <Right> :bn<CR>
-
-    "center search results on the screen
-    nnoremap <silent> N Nzz
-    nnoremap <silent> n nzz
-    nnoremap <silent> * *zz
-    nnoremap <silent> # #zz
-    nnoremap <silent> g* g*zz
-    nnoremap <silent> g# g#zz
-
-
-    " Use sane regexes.
-    nnoremap / /\v
-    vnoremap / /\v
-
-    " Automatically jump to end of text you pasted:
-    vnoremap <silent> y y`]
-    vnoremap <silent> p p`]
-    nnoremap <silent> p p`]
-
-    "Prevent replacing paste buffer on paste:
-    " vp doesn't replace paste buffer
-    function! RestoreRegister()
-      let @" = s:restore_reg
-      return ' '
-    endfunction
-    function! s:Repl()
-      let s:restore_reg = @"
-      return "p@=RestoreRegister()\<cr>"
-    endfunction
-    vmap <silent> <expr> p <sid>Repl()
-    " make this the only window, fe to stop diffing
-    noremap <Leader>wo <C-W><C-O>
-
-    " easier navigation between split windows
-    " conflicts with <c-l> for redraw
-    " nnoremap <c-j> <c-w>j
-    " nnoremap <c-k> <c-w>k
-    " nnoremap <c-h> <c-w>h
-    " nnoremap <c-l> <c-w>l
-" }
-
-" Plugins {
-
-  " CtrlP {
-    noremap <C-b> :CtrlPBuffer<CR>
-  "}
-  " Fugitive {
-            nnoremap <silent> <leader>gs :Gstatus<CR>
-            nnoremap <silent> <leader>gd :Gdiff<CR>
-            nnoremap <silent> <leader>gc :Gcommit<CR>
-            nnoremap <silent> <leader>gb :Gblame<CR>
-            nnoremap <silent> <leader>gl :Glog<CR>
-            nnoremap <silent> <leader>gp :Git push<CR>
-            nnoremap <silent> <leader>gr :Gread<CR>
-            nnoremap <silent> <leader>gw :Gwrite<CR>
-            nnoremap <silent> <leader>ge :Gedit<CR>
-            " Mnemonic _i_nteractive
-            nnoremap <silent> <leader>gi :Git add -p %<CR>
-            nnoremap <silent> <leader>gg :SignifyToggle<CR>
-    "}
-
-    " NERDTree {
-    noremap <Leader>e :NERDTreeToggle<CR>
-    "}
-
-    " rainbow_parentheses {
-        nnoremap <Leader>r :RainbowParenthesesToggle<CR>
-        au Syntax * RainbowParenthesesLoadRound
-        au Syntax * RainbowParenthesesLoadSquare
-        au Syntax * RainbowParenthesesLoadBraces
-    "}
-
-    " Tabularize {
-            nmap <Leader>a& :Tabularize /&<CR>
-            vmap <Leader>a& :Tabularize /&<CR>
-            nmap <Leader>a= :Tabularize /^[^=]*\zs=<CR>
-            vmap <Leader>a= :Tabularize /^[^=]*\zs=<CR>
-            nmap <Leader>a=> :Tabularize /=><CR>
-            vmap <Leader>a=> :Tabularize /=><CR>
-            nmap <Leader>a: :Tabularize /:<CR>
-            vmap <Leader>a: :Tabularize /:<CR>
-            nmap <Leader>a:: :Tabularize /:\zs<CR>
-            vmap <Leader>a:: :Tabularize /:\zs<CR>
-            nmap <Leader>a, :Tabularize /,<CR>
-            vmap <Leader>a, :Tabularize /,<CR>
-            nmap <Leader>a,, :Tabularize /,\zs<CR>
-            vmap <Leader>a,, :Tabularize /,\zs<CR>
-            nmap <Leader>a<Bar> :Tabularize /<Bar><CR>
-            vmap <Leader>a<Bar> :Tabularize /<Bar><CR>
-    " }
-
-  " ctrlp {
-    let s:ctrlp_fallback = 'ag %s --nocolor -l -g ""'
-  "}
-
-
-  " UndoTree {
-    nnoremap <leader>u :UndotreeToggle<CR>
-    nnoremap <Leader>u :UndotreeToggle<CR>
-    " If undotree is opened, it is likely one wants to interact with it.
-    let g:undotree_SetFocusWhenToggle=1
-
-  "}
-
-
-    " YouCompleteMe {
-            let g:ycm_filetype_blacklist = {
-              \ 'tagbar' : 1,
-              \ 'qf' : 1,
-              \ 'unite' : 1,
-              \ 'infolog' : 1,
-              \}
-            let g:acp_enableAtStartup = 0
-            " enable completion in comments
-            let g:ycm_complete_in_comments = 1
-            " enable completion from tags
-            let g:ycm_collect_identifiers_from_tags_files = 1
-            " enable completion from comments and strings
-            let g:ycm_collect_identifiers_from_comments_and_strings = 1
-            " enable completion from syntax defenition
-            let g:ycm_seed_identifiers_with_syntax = 1
-
-            " remap Ultisnips for compatibility for YCM
-            let g:UltiSnipsExpandTrigger = '<C-j>'
-            let g:UltiSnipsJumpForwardTrigger = '<C-j>'
-            let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
-
-            " Enable omni completion.
-            autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-            autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-            autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-            autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-            autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-            autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
-            autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
-
-            " Haskell post write lint and check with ghcmod
-            " $ `cabal install ghcmod` if missing and ensure
-            " ~/.cabal/bin is in your $PATH.
-            if !executable("ghcmod")
-                autocmd BufWritePost *.hs GhcModCheckAndLintAsync
-            endif
-
-            " For snippet_complete marker.
-                    set conceallevel=2 concealcursor=i
-
-            " Disable the neosnippet preview candidate window
-            " When enabled, there can be too much visual noise
-            " especially when splits are used.
-            set completeopt-=preview
-    " }
-
-    " vim-airline {
-        " Set configuration options for the statusline plugin vim-airline.
-        " Use the powerline theme and optionally enable powerline symbols.
-        " To use the symbols , , , , , , and .in the statusline
-        " segments add the following to your .vimrc.before.local file:
-        "   let g:airline_powerline_fonts=1
-        " If the previous symbols do not render for you then install a
-        " powerline enabled font.
-
-        " See `:echo g:airline_theme_map` for some more choices
-        " Default in terminal vim is 'dark'
-                "let g:airline_theme = 'solarized'
-        " Automatically displays all buffers when there's only one tab open.
-            let g:airline#extensions#tabline#enabled = 1
-
-    " }
-
-" }
-
-        " Specify a different directory in which to place the vimbackup,
-        " vimviews, vimundo, and vimswap files/directories, add the following to
-        set backupdir=~/.vim/backup//
-        set directory=~/.vim/swap//
-        set undodir=~/.vim/undo//
-
-    " Strip whitespace {
-    function! StripTrailingWhitespace()
-        " Preparation: save last search, and cursor position.
-        let _s=@/
-        let l = line(".")
-        let c = col(".")
-        " do the business:
+with import <nixpkgs> {};
+
+vim_configurable.customize {
+  name = "vim";   # Specifies the vim binary name.
+  # Below you can specify what usually goes into `~/.vimrc`
+  vimrcConfig.customRC = ''
+    " Preferred global default settings:
+    set number                    " Enable line numbers by default
+    set background=dark           " Set the default background to dark or light
+    set smartindent               " Automatically insert extra level of indentation
+    set tabstop=4                 " Default tabstop
+    set shiftwidth=4              " Default indent spacing
+    set expandtab                 " Expand [TABS] to spaces
+    syntax enable                 " Enable syntax highlighting
+    colorscheme gruvbox           " Set the default colour scheme
+    set t_Co=256                  " Use 265 colors in vim
+    set spell spelllang=en_gb     " Default spell checking language
+    hi clear SpellBad             " Clear any unwanted default settings
+    hi SpellBad cterm=underline   " Set the spell checking highlight style
+    hi SpellBad ctermbg=NONE      " Set the spell checking highlight background
+    match ErrorMsg '\s\+$'        "
+
+    let g:airline_powerline_fonts = 1   " Use powerline fonts
+    let g:airline_theme='gruvbox'     " Set the airline theme
+
+    "call togglebg#map("<F10>")   " Toggle background colour between dark|light
+
+    set laststatus=2   " Set up the status line so it's coloured and always on
+
+    " Removes trailing spaces:
+    function! TrimWhiteSpace()
         %s/\s\+$//e
-        " clean up: restore previous search history, and cursor position
-        let @/=_s
-        call cursor(l, c)
     endfunction
-    " }
 
+    nnoremap <silent> <Leader>RemoveTrailingWhiteSpace :call TrimWhiteSpace()<CR>
+    autocmd FileWritePre    * :call TrimWhiteSpace()
+    autocmd FileAppendPre   * :call TrimWhiteSpace()
+    autocmd FilterWritePre  * :call TrimWhiteSpace()
+    autocmd BufWritePre     * :call TrimWhiteSpace()
 
+    " Transparent editing of gpg encrypted files.
+    " By Wouter Hanegraaff <wouter@blub.net>
+    augroup encrypted
+        au!
 
+        " First make sure nothing is written to ~/.viminfo while editing an encrypted file.
+        autocmd BufReadPre,FileReadPre      *.gpg set viminfo=
+        " We don't want a swap file, as it writes unencrypted data to disk
+        autocmd BufReadPre,FileReadPre      *.gpg set noswapfile
+        " Switch to binary mode to read the encrypted file
+        autocmd BufReadPre,FileReadPre      *.gpg set bin
+        autocmd BufReadPre,FileReadPre      *.gpg let ch_save = &ch|set ch=2
+        autocmd BufReadPost,FileReadPost    *.gpg '[,']!gpg --decrypt 2> /dev/null
+        " Switch to normal mode for editing
+        autocmd BufReadPost,FileReadPost    *.gpg set nobin
+        autocmd BufReadPost,FileReadPost    *.gpg let &ch = ch_save|unlet ch_save
+        autocmd BufReadPost,FileReadPost    *.gpg execute ":doautocmd BufReadPost " . expand("%:r")
 
+        " Convert all text to encrypted text before writing
+        autocmd BufWritePre,FileWritePre    *.gpg   '[,']!gpg --default-key=A4122FF3971B6865 --default-recipient-self -ae 2>/dev/null
+        " Undo the encryption so we are back in the normal text, directly
+        " after the file has been written.
+        autocmd BufWritePost,FileWritePost    *.gpg   u
+    augroup END
 
-"writes current mappings to a file
-redir! > ~/.vim/vim_keys.txt
-silent verbose map
-redir END
+    " Add files ending in md to the list of files recognised as markdown:
+    autocmd BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
 
-" local plugins and synthaxes:
-source ~/.vimrc
+    " My Markdown environment
+    function! MarkdownSettings()
+        set textwidth=79
+        set spell spelllang=en_au
+    endfunction
+    autocmd BufNewFile,BufFilePre,BufRead *.mdwn :call MarkdownSettings()
+    autocmd BufNewFile,BufFilePre,BufRead *.md :call MarkdownSettings()
 
-        '';
+    " My ReStructured Text environment
+    function! ReStructuredSettings()
+        set textwidth=79
+        set spell spelllang=en_au
+    endfunction
+    autocmd BufNewFile,BufFilePre,BufRead *.rst :call ReStructuredSettings()
+    autocmd BufNewFile,BufFilePre,BufRead *.txt :call ReStructuredSettings()
 
-        vimrcConfig.vam.knownPlugins = pkgs.vimPlugins;
-        vimrcConfig.vam.pluginDictionaries = [
-          { names = [
-            "airline"
-            "colors-solarized"
-            "ctrlp"
-            "fugitive"
-            "nerdcommenter"
-            "nerdtree"
-            "rainbow_parentheses"
-            "Tabular"
-            "undotree"
-            "vim-addon-nix"
-            "youcompleteme"
-            ]; }
-            #{ name = "github:gmoe/vim-faust"; ft_regex = "^faust\$"; }
-            #doesn't work:
-            #"vim-addon-local-vimrc"
-            #replaced by voom:
-            #"VimOutliner"
-            #doesn't work:
-            #"YankRing"
-            #gives error on startup:
-            #"UltiSnips"
-        ];
-      })
-  ];
+    " My LaTeX environment:
+    function! LaTeXSettings()
+        set textwidth=79
+        set spell spelllang=en_au
+    endfunction
+    autocmd BufNewFile,BufFilePre,BufRead *.tex :call LaTeXSettings()
+
+    " Settings for my Haskell environment:
+    function! HaskellSettings()
+        set tabstop=4
+        set shiftwidth=4
+        set expandtab
+        set textwidth=79
+    endfunction
+    autocmd BufNewFile,BufFilePre,BufRead *.hs :call HaskellSettings()
+
+    " Settings for my Nix environment:
+    function! NixSettings()
+        set tabstop=2
+        set shiftwidth=2
+        set expandtab
+        set textwidth=79
+        set filetype=nix
+    endfunction
+    autocmd BufNewFile,BufFilePre,BufRead *.nix :call NixSettings()
+
+    " Settings for my Golang environment:
+    function! GoSettings()
+        set tabstop=7
+        set shiftwidth=7
+        set noexpandtab
+    endfunction
+    autocmd BufNewFile,BufFilePre,BufRead *.go :call GoSettings()
+
+    " Settings for my Python environment:
+    function! PythonSettings()
+        set tabstop=4
+        set shiftwidth=4
+        set expandtab
+        set textwidth=79
+        set spell!
+    endfunction
+    autocmd BufNewFile,BufFilePre,BufRead *.py :call PythonSettings()
+
+    " My Mutt environment
+    function! MuttSettings()
+        set textwidth=79
+        set spell spelllang=en_au
+        "set tabstop=4
+        "set shiftwidth=4
+        "set expandtab
+    endfunction
+    autocmd BufNewFile,BufFilePre,BufRead /tmp/mutt-* :call MuttSettings()
+    autocmd BufNewFile,BufFilePre,BufRead /tmp/neomutt-* :call MuttSettings()
+
+    " Settings for my C environment:
+    function! CSettings()
+        set tabstop=2
+        set shiftwidth=2
+        set expandtab
+        set textwidth=79
+    endfunction
+    autocmd BufNewFile,BufFilePre,BufRead *.c :call CSettings()
+
+    " Settings for my YAML environment:
+    function! YAMLSettings()
+        set tabstop=2
+        set shiftwidth=2
+        set expandtab
+        set textwidth=79
+    endfunction
+    autocmd BufNewFile,BufFilePre,BufRead *.yaml :call YAMLSettings()
+
+    " Settings for my Bash environment:
+    function! BashSettings()
+        set tabstop=4
+        set shiftwidth=4
+        set expandtab
+        set textwidth=79
+        set spell!
+    endfunction
+    autocmd BufNewFile,BufFilePre,BufRead *.sh :call BashSettings()
+
+    " My Bzr commit environment
+    function! BzrSettings()
+        set textwidth=79
+        set spell spelllang=en_au
+        set tabstop=4
+        set shiftwidth=4
+        set expandtab
+    endfunction
+    autocmd BufNewFile,BufFilePre,BufRead bzr_* :call BzrSettings()
+
+    " Settings for my Elixir environment:
+    function! ElixirSettings()
+        set tabstop=2
+        set shiftwidth=2
+        set expandtab
+        set textwidth=79
+        set spell!
+    endfunction
+    autocmd BufNewFile,BufFilePre,BufRead *.ex :call ElixirSettings()
+    autocmd BufNewFile,BufFilePre,BufRead *.exs :call ElixirSettings()
+
+  '';
+  # store your plugins in Vim packages
+  vimrcConfig.packages.myVimPackage = with pkgs.vimPlugins; {
+    start = [               # Plugins loaded on launch
+      airline               # Lean & mean status/tabline for vim that's light as air
+      ctrlp                 # Full path fuzzy file, buffer, mru, tag, ... finder for Vim
+      ghc-mod-vim           # Happy Haskell programming on Vim, powered by ghc-mod
+      neco-ghc              # Completion plugin for Haskell, using ghc-mod
+      neocomplete-vim       # Keyword completion system
+      nerdcommenter         # Comment functions so powerful—no comment necessary
+      nerdtree              # File system explorer
+      nerdtree-git-plugin   # Plugin for nerdtree showing git status
+      snipmate              # Concise vim script implementing TextMate's snippets features
+      solarized             # Solarized colours for Vim
+      gruvbox               # Gruvbox colours for Vim
+      supertab              # Allows you to use <Tab> for all your insert completion
+      syntastic             # Syntax checking hacks
+      tabular               # Script for text filtering and alignment
+      vim-airline-themes    # Collection of themes for airline
+      vim-nix               # Support for writing Nix expressions in vim
+      vimproc               # Interactive command execution required by ghc-mod-vim
+      vim-autoformat        # Formatting support
+      vim-elixir            # Elixir support
+      coc-nvim              #
+    ];
+    # manually loadable by calling `:packadd $plugin-name`
+    # opt = [ phpCompletion elm-vim ];
+    # To automatically load a plugin when opening a filetype, add vimrc lines like:
+    # autocmd FileType php :packadd phpCompletion
+  };
 }
 
