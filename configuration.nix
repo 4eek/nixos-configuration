@@ -17,6 +17,7 @@ in
       ./bluetooth.nix
       ./fonts.nix
       ./zsh.nix
+      #./k8s.nix
       #./ipfs.nix
     ];
 
@@ -35,7 +36,7 @@ in
   '';
 
   # Disable PC Speaker "audio card"
-  boot.blacklistedKernelModules = [ "snd_pcsp" ];
+  boot.blacklistedKernelModules = [ "snd_pcsp" "nouveau" ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -52,7 +53,7 @@ in
   ];
 
   networking.hostName = "dukuduku"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+#  networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking.networkmanager.enable = true;
 
   # Select internationalisation properties.
@@ -98,7 +99,7 @@ in
     cryptsetup
     dialog
     direnv
-    dmenu
+#    dmenu
     unstable.dropbox
     emacs
     encfs
@@ -107,8 +108,11 @@ in
     exfat
     fasd
     feh
+    ffmpeg
     firefox
     firefox-devedition-bin
+    frei0r
+    fzf
     gcc
     gettext
     ghc
@@ -125,35 +129,40 @@ in
     gnumake
     gnupg
     go
-    helmfile
+    unstable.helmfile
     htop
     inotify-tools
     jq
     jnettop
     kbfs
+    ksshaskpass
+    kdenlive
     kdiff3
-    keychain
+ #   keychain
     keybase
     keybase-gui
+    unstable.kgpg
     kops
     krita
-    kubectl
-    kubernetes
-    kubernetes-helm
+    unstable.kubectl
+#    kubernetes
+    unstable.kubernetes-helm
     libreoffice
     lsof
     maim
+    marble
     mc
-    minikube
+    unstable.minikube
     mongodb
     nox
     unstable.mongodb-compass
-    #neovim
+    neovim
     networkmanagerapplet
     nix-prefetch-scripts
     nodejs
     nodePackages.eslint
     nmap
+    unstable.nnn
     obs-studio
     octave
     openarena
@@ -175,13 +184,14 @@ in
     unstable.signal-desktop
     slack
     slop
+    sops
     spectacle
-    stalonetray
+#    stalonetray
     unstable.standardnotes
     sqlite
     unstable.tdesktop
-    terminator
-    termite
+    unstable.terminator
+#    termite
     terraform_0_12
     thunderbird
     tigervnc
@@ -190,12 +200,12 @@ in
     udisks2
     unzip
     upower
-    vagrant
-    unstable.vscode-with-extensions
+#    vagrant
+    unstable.vscode
     (
       import ./vim.nix
     )
-    virtualbox
+#    unstable.virtualbox
     vlc
     wget
     which
@@ -208,31 +218,19 @@ in
     zathura
     zeal
     zoom-us
-
-    # For clipboard syncing
-    xsel
-    #parcellite
-    xdotool
-  ]) ++
-  (with pkgs.haskellPackages; [
-    stylish-haskell
-    xmobar
-    # apply-refact
-    hlint
-    # hasktags
-    hoogle
   ]);
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.bash.enableCompletion = true;
-  programs.mtr.enable = true;
-  programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
+  # programs.mtr.enable = true;
+  # programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
 
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+  programs.ssh.startAgent = true;
 
   # Enable virtualisation - otherwise get missing vboxdrv error
   virtualisation.virtualbox.host.enable = true;
@@ -263,16 +261,16 @@ in
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.xserver.layout = "us";
-  services.xserver.desktopManager.default = "none";
-  services.xserver.desktopManager.xterm.enable = false;
+  #services.xserver.desktopManager.default = "none";
+  #services.xserver.desktopManager.xterm.enable = false;
   # Try SLiM as the display manager
   #services.xserver.displayManager.slim.defaultUser = "kgf";
   # services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.displayManager.sessionCommands = ''
-    ${pkgs.xlibs.xset}/bin/xset r rate 200 60  # set the keyboard repeat rate
-    ${pkgs.xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr # Set cursor
+  #services.xserver.displayManager.sessionCommands = ''
+  #  ${pkgs.xlibs.xset}/bin/xset r rate 200 60  # set the keyboard repeat rate
+  #  ${pkgs.xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr # Set cursor
     #${pkgs.feh}/bin/feh --no-fehbg --bg-tile ~/background.png &
-  '';
+  #'';
   services.xserver.xkbOptions = "ctrl:nocaps";
   # services.xserver.xkbOptions = "eurosign:e";
 
@@ -316,6 +314,8 @@ in
   # Enable Kubernetes
 #  services.kubernetes = {
 #    roles = ["master" "node"];
+#    masterAddress = "dukuduku";
+#    #kubelet.extraOpts = "--fail-swap-on=false";
 #  };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
