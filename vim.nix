@@ -17,6 +17,7 @@ vim_configurable.customize {
     set mouse=a                       " Automatically enable mouse usage
     set mousehide                     " Hide the mouse cursor while typing
     scriptencoding utf-8              " Use utf-8 encoding
+    set encoding=UTF-8                " For devicons
     set clipboard=unnamed,unnamedplus " Use system clipboard
     set history=1000                  " Store a ton of history (default is 20)
     set hidden                        " Allow buffer switching without saving
@@ -25,11 +26,12 @@ vim_configurable.customize {
     set incsearch                     " Find as you type search
     set hlsearch                      " Highlight search terms
     set gdefault                      " makes the s% flag global by default. Use /g to turn the global option off.
-    set ignorecase                    " Case insensitive search
+    "set ignorecase                    " Case insensitive search
     set smartcase                     " Case sensitive when uc present
     set wildmenu                      " Show list instead of just completing
     set wildmode=list:longest,full    " Command <Tab> completion, list matches, then longest common part, then all.
-    set whichwrap=b,s,h,l,<,>,[,]     " Backspace and cursor keys wrap too
+    "set whichwrap=b,s,h,l,<,>,[,]     " Backspace and cursor keys wrap too
+    set iskeyword-=_                  " Underscores are also word separators
     set scrolljump=5                  " Lines to scroll when cursor leaves screen
     set scrolloff=3                   " Minimum lines to keep above and below cursor
     set list
@@ -50,11 +52,13 @@ vim_configurable.customize {
                                       " Selected characters/lines in visual mode
 
     let g:airline_powerline_fonts = 1   " Use powerline fonts
-    let g:airline_theme='gruvbox'     " Set the airline theme
+    let g:airline_theme='gruvbox'       " Set the airline theme
 
     "call togglebg#map("<F10>")   " Toggle background colour between dark|light
 
     set laststatus=2   " Set up the status line so it's coloured and always on
+
+    map <C-t> :NERDTreeToggle<CR>
 
     " Removes trailing spaces:
     function! TrimWhiteSpace()
@@ -88,10 +92,13 @@ vim_configurable.customize {
     augroup END
 
     " Setting up the directories {
-            "set backup                  " Backups are nice ...
-            set undofile                " So is persistent undo ...
-            set undolevels=1000         " Maximum number of changes that can be undone
-            set undoreload=10000        " Maximum number lines to save for undo on a buffer reload
+            set backup                    " Backups are nice ...
+            set undofile                  " So is persistent undo ...
+            set undolevels=1000           " Maximum number of changes that can be undone
+            set undoreload=10000          " Maximum number lines to save for undo on a buffer reload
+            set backupdir=~/.vim/tmp//,.  " Backup files in tmp dir
+            set directory=~/.vim/tmp//,.  " Swap files in tmp dir
+            set undodir=~/.vim/tmp//,.    " Undo files in tmp dir
     "}
 
     " Transparent editing of gpg encrypted files.
@@ -263,6 +270,14 @@ vim_configurable.customize {
     vim-airline-themes    # Collection of themes for airline
     vim-nix               # Support for writing Nix expressions in vim
     vimproc               # Interactive command execution required by ghc-mod-vim
+    vim-fugitive          # Git support
+    vim-gitgutter         # Show git info in gutter
+    vim-orgmode           # Orgmode support
+    vim-speeddating       # for Orgmode
+    vim-startify          # Provides a start screen
+    vim-devicons          # Show icons
+    #vim-rooter            # Changes the working directory to the project root when you open a file or directory
+    #vim-fetch             # Process line and column jump specifications
     fzf
     fzf-vim
     vim-autoformat        # Formatting support

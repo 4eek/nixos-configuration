@@ -69,6 +69,7 @@ in
   nixpkgs.config = {
     # Allow unfree so we can get firefox-dev, etc.
     allowUnfree = true;
+    #allowBroken = true;
     # Allow usage of packages from nixos-unstable
     packageOverrides = pkgs: {
       unstable = import unstableTarball {
@@ -81,6 +82,7 @@ in
   # $ nix-env -qaP | grep wget
   environment.systemPackages = (with pkgs; [
     ag
+    unstable.alacritty
     unstable.any-nix-shell
     arandr
     aria2
@@ -119,8 +121,8 @@ in
     gitAndTools.gitFull
     gitAndTools.git-extras
     gitAndTools.gita
-    gitAndTools.hub
     gitAndTools.lab
+    gitAndTools.hub
     gitAndTools.tig
     gitAndTools.gitAnnex
     gitAndTools.diff-so-fancy
@@ -165,6 +167,7 @@ in
     unstable.nnn
     obs-studio
     octave
+    okular
     openarena
     openconnect
     openconnect_openssl
@@ -196,12 +199,13 @@ in
     thunderbird
     tigervnc
     tmux
+#    unstable.todoist
     tree
     udisks2
     unzip
     upower
 #    vagrant
-    unstable.vscode
+#    unstable.vscode
     (
       import ./vim.nix
     )

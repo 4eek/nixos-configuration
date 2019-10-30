@@ -5,6 +5,7 @@
     enableDefaultFonts = true;
     enableFontDir = true;
     fonts = [
+      pkgs.nerdfonts
       pkgs.anonymousPro
       pkgs.arkpandora_ttf
       pkgs.caladea
@@ -15,6 +16,7 @@
       pkgs.dejavu_fonts
       pkgs.dejavu_fonts
       pkgs.google-fonts
+      pkgs.hack-font
       pkgs.inconsolata
       pkgs.liberationsansnarrow
       pkgs.liberation_ttf
