@@ -72,6 +72,7 @@
       export EDITOR='vim'
       export SSH_ASKPASS='/run/current-system/sw/bin/ksshaskpass'
       export GIT_SSL_CAINFO=/etc/ssl/certs/ca-bundle.crt
+      export FZF_DEFAULT_COMMAND='rg --files --hidden'
       eval "$(${pkgs.direnv}/bin/direnv hook zsh)"
     '';
   };

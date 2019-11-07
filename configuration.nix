@@ -158,7 +158,9 @@ in
     mongodb
     nox
     unstable.mongodb-compass
-    neovim
+    (
+      import ./neovim.nix
+    )
     networkmanagerapplet
     nix-prefetch-scripts
     nodejs
@@ -166,7 +168,7 @@ in
     nmap
     unstable.nnn
     obs-studio
-    octave
+    #octave
     okular
     openarena
     openconnect
@@ -176,7 +178,7 @@ in
     unstable.postman
     powertop
     unstable.protonvpn-cli
-    qtpass
+    #qtpass
     ranger
     #unstable.rescuetime
     ripgrep
@@ -199,13 +201,13 @@ in
     thunderbird
     tigervnc
     tmux
-#    unstable.todoist
+    unstable.todoist
     tree
     udisks2
     unzip
     upower
 #    vagrant
-#    unstable.vscode
+    unstable.vscode
     (
       import ./vim.nix
     )
