@@ -109,7 +109,7 @@ in
     exa
     exfat
     fasd
-    feh
+    #feh
     ffmpeg
     firefox
     firefox-devedition-bin
@@ -120,7 +120,7 @@ in
     ghc
     gitAndTools.gitFull
     gitAndTools.git-extras
-    gitAndTools.gita
+    unstable.gitAndTools.gita
     gitAndTools.lab
     gitAndTools.hub
     gitAndTools.tig
@@ -133,6 +133,19 @@ in
     go
     unstable.helmfile
     htop
+    # START image_optim
+    unstable.image_optim
+    unstable.advancecomp
+    unstable.gifsicle
+    unstable.jhead
+    unstable.jpegoptim
+    unstable.libjpeg
+    unstable.optipng
+    unstable.pngcrush
+    unstable.pngout
+    unstable.pngquant
+    #unstable.svgo
+    # END
     inotify-tools
     jq
     jnettop
@@ -175,6 +188,7 @@ in
     openconnect_openssl
     openvpn
     pass
+    unstable.pgadmin
     unstable.postman
     powertop
     unstable.protonvpn-cli
@@ -277,7 +291,9 @@ in
   #  ${pkgs.xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr # Set cursor
     #${pkgs.feh}/bin/feh --no-fehbg --bg-tile ~/background.png &
   #'';
-  services.xserver.xkbOptions = "ctrl:nocaps";
+  # services.xserver.xkbOptions = "ctrl:nocaps";
+  # services.xserver.xkbOptions = "ctrl:swapcaps";
+  services.xserver.xkbOptions = "caps:swapescape";
   # services.xserver.xkbOptions = "eurosign:e";
 
   # Enable xmonad

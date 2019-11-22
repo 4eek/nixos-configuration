@@ -12,6 +12,7 @@
       pkgs.carlito
       pkgs.comfortaa
       pkgs.comic-relief
+      pkgs.corefonts
       pkgs.crimson
       pkgs.dejavu_fonts
       pkgs.dejavu_fonts
