@@ -67,14 +67,14 @@ neovim.override {
     endfunction
 
     " Disable cheat keys
-    noremap  <Up> ""
-    noremap! <Up> <Esc>
-    noremap  <Down> ""
-    noremap! <Down> <Esc>
-    noremap  <Left> ""
-    noremap! <Left> <Esc>
-    noremap  <Right> ""
-    noremap! <Right> <Esc>
+    "noremap  <Up> ""
+    "noremap! <Up> <Esc>
+    "noremap  <Down> ""
+    "noremap! <Down> <Esc>
+    "noremap  <Left> ""
+    "noremap! <Left> <Esc>
+    "noremap  <Right> ""
+    "noremap! <Right> <Esc>
 
     nnoremap <silent> <Leader>RemoveTrailingWhiteSpace :call TrimWhiteSpace()<CR>
     autocmd FileWritePre    * :call TrimWhiteSpace()
@@ -231,6 +231,100 @@ neovim.override {
 
     " END Coc.nvim Configuation
 
+    " START projectionist
+
+    let g:projectionist_heuristics = {
+      \   "apps/|mix.*": {
+      \     "lib/**/views/*_view.ex": {
+      \       "type": "view",
+      \       "alternate": "test/{dirname}/views/{basename}_view_test.exs",
+      \       "template": [
+      \         "defmodule {dirname|camelcase|capitalize}.{basename|camelcase|capitalize}View do",
+      \         "  use {dirname|camelcase|capitalize}, :view",
+      \         "end"
+      \       ]
+      \     },
+      \     "test/**/views/*_view_test.exs": {
+      \       "alternate": "lib/{dirname}/views/{basename}_view.ex",
+      \       "type": "test",
+      \       "template": [
+      \         "defmodule {dirname|camelcase|capitalize}.{basename|camelcase|capitalize}ViewTest do",
+      \         "  use ExUnit.Case, async: true",
+      \         "",
+      \         "  alias {dirname|camelcase|capitalize}.{basename|camelcase|capitalize}View",
+      \         "end"
+      \       ]
+      \     },
+      \     "lib/**/controllers/*_controller.ex": {
+      \       "type": "controller",
+      \       "alternate": "test/{dirname}/controllers/{basename}_controller_test.exs",
+      \       "template": [
+      \         "defmodule {dirname|camelcase|capitalize}.{basename|camelcase|capitalize}Controller do",
+      \         "  use {dirname|camelcase|capitalize}, :controller",
+      \         "end"
+      \       ]
+      \     },
+      \     "test/**/controllers/*_controller_test.exs": {
+      \       "alternate": "lib/{dirname}/controllers/{basename}_controller.ex",
+      \       "type": "test",
+      \       "template": [
+      \         "defmodule {dirname|camelcase|capitalize}.{basename|camelcase|capitalize}ControllerTest do",
+      \         "  use {dirname|camelcase|capitalize}.ConnCase, async: true",
+      \         "end"
+      \       ]
+      \     },
+      \     "lib/**/channels/*_channel.ex": {
+      \       "type": "channel",
+      \       "alternate": "test/{dirname}/channels/{basename}_channel_test.exs",
+      \       "template": [
+      \         "defmodule {dirname|camelcase|capitalize}.{basename|camelcase|capitalize}Channel do",
+      \         "  use {dirname|camelcase|capitalize}, :channel",
+      \         "end"
+      \       ]
+      \     },
+      \     "test/**/channels/*_channel_test.exs": {
+      \       "alternate": "lib/{dirname}/channels/{basename}_channel.ex",
+      \       "type": "test",
+      \       "template": [
+      \         "defmodule {dirname|camelcase|capitalize}.{basename|camelcase|capitalize}ChannelTest do",
+      \         "  use {dirname|camelcase|capitalize}.ChannelCase, async: true",
+      \         "",
+      \         "  alias {dirname|camelcase|capitalize}.{basename|camelcase|capitalize}Channel",
+      \         "end"
+      \       ]
+      \     },
+      \     "test/**/features/*_test.exs": {
+      \       "type": "feature",
+      \       "template": [
+      \         "defmodule {dirname|camelcase|capitalize}.{basename|camelcase|capitalize}Test do",
+      \         "  use {dirname|camelcase|capitalize}.FeatureCase, async: true",
+      \         "end"
+      \       ]
+      \     },
+      \     "lib/*.ex": {
+      \       "alternate": "test/{}_test.exs",
+      \       "type": "source",
+      \       "template": [
+      \         "defmodule {camelcase|capitalize|dot} do",
+      \         "end"
+      \       ]
+      \     },
+      \     "test/*_test.exs": {
+      \       "alternate": "lib/{}.ex",
+      \       "type": "test",
+      \       "template": [
+      \         "defmodule {camelcase|capitalize|dot}Test do",
+      \         "  use ExUnit.Case, async: true",
+      \         "",
+      \         "  alias {camelcase|capitalize|dot}",
+      \         "end"
+      \       ]
+      \     }
+      \   }
+      \ }
+
+    " END projectionist
+
     " Add files ending in md to the list of files recognised as markdown:
     autocmd BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
 
@@ -364,7 +458,7 @@ neovim.override {
     ghc-mod-vim           # Happy Haskell programming on Vim, powered by ghc-mod
     neco-ghc              # Completion plugin for Haskell, using ghc-mod
     neocomplete-vim       # Keyword completion system
-    nerdcommenter         # Comment functions so powerful—no comment necessary
+    #nerdcommenter         # Comment functions so powerful—no comment necessary
     nerdtree              # File system explorer
     nerdtree-git-plugin   # Plugin for nerdtree showing git status
     #snipmate              # Concise vim script implementing TextMate's snippets features
@@ -376,6 +470,8 @@ neovim.override {
     vim-nix               # Support for writing Nix expressions in vim
     vimproc               # Interactive command execution required by ghc-mod-vim
     vim-fugitive          # Git support
+    vim-commentary        # Better commentary
+    vim-projectionist     # Granular project configuration
     vim-gitgutter         # Show git info in gutter
     vim-orgmode           # Orgmode support
     vim-speeddating       # for Orgmode
