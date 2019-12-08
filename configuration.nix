@@ -3,11 +3,20 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, lib, pkgs, ... }:
-
+with pkgs;
 let
   unstableTarball =
     fetchTarball
-      https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz;
+    https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz;
+
+  my-python-packages = python-packages: with python-packages; [
+    toolz
+    packaging
+    setuptools
+    bugwarrior
+    # other python packages you want
+  ];
+  python-with-my-packages = python3.withPackages my-python-packages;
 in
 {
   imports =
@@ -27,7 +36,19 @@ in
   # Enable OpenGL support
   hardware.opengl = {
     enable = true;
+    extraPackages = with pkgs; [
+      vaapiIntel
+      vaapiVdpau
+      libvdpau-va-gl
+      intel-media-driver # only available starting nixos-19.03 or the current nixos-unstable
+    ];
     driSupport32Bit = true;
+    extraPackages32 = with pkgs.pkgsi686Linux; [ libva ];
+  };
+
+  hardware.pulseaudio = {
+    enable = true;
+    support32Bit = true;
   };
 
   # Make your audio card the default ALSA card
@@ -55,10 +76,16 @@ in
   networking.hostName = "dukuduku"; # Define your hostname.
 #  networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking.networkmanager.enable = true;
+  networking.extraHosts =
+  ''
+    52.215.250.255 privyseal-docker1
+    54.154.251.216 privyseal-docker2
+  '';
+
 
   # Select internationalisation properties.
   i18n = {
-    consoleFont = "Lat2-Terminus16";
+    consoleFont = "latarcyrheb-sun32";
     consoleKeyMap = "us";
     defaultLocale = "en_GB.UTF-8";
   };
@@ -75,8 +102,34 @@ in
       unstable = import unstableTarball {
         config = config.nixpkgs.config;
       };
+      vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
     };
   };
+
+  # Enable periodic automatic GC
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
+
+  # Enable Syncthing
+  services.syncthing = {
+      enable = true;
+      dataDir = "/home/kgf/Desktop/Syncthing";
+      configDir = "/home/kgf/.config/syncthing";
+      user = "kgf";
+      openDefaultPorts = true;
+      guiAddress = "0.0.0.0:8384";
+  };
+
+
+  # Enable TOR
+  # services.tor = {
+  #     enable = true;
+  #     client.enable = true;
+  #     controlPort = 9051;
+  # };
 
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
@@ -87,8 +140,10 @@ in
     arandr
     aria2
     ark
+    unstable.asciinema
     aspell
     aspellDicts.en
+    ansible
     awscli
     bind
     cabal2nix
@@ -101,15 +156,17 @@ in
     cryptsetup
     dialog
     direnv
-#    dmenu
+    unstable.discord
+    # dmenu
     unstable.dropbox
+    unstable.dropbox-cli
     emacs
     encfs
     evince
     exa
     exfat
     fasd
-    #feh
+    # feh
     ffmpeg
     firefox
     firefox-devedition-bin
@@ -118,16 +175,17 @@ in
     gcc
     gettext
     ghc
-    gitAndTools.gitFull
-    gitAndTools.git-extras
+    unstable.gitAndTools.gitFull
+    unstable.gitAndTools.git-extras
     unstable.gitAndTools.gita
-    gitAndTools.lab
-    gitAndTools.hub
-    gitAndTools.tig
-    gitAndTools.gitAnnex
-    gitAndTools.diff-so-fancy
-    gitAndTools.grv
+    unstable.gitAndTools.lab
+    unstable.gitAndTools.hub
+    unstable.gitAndTools.tig
+    unstable.gitAndTools.gitAnnex
+    unstable.gitAndTools.diff-so-fancy
+    unstable.gitAndTools.grv
     unstable.git-repo-updater
+    glxinfo
     gnumake
     gnupg
     go
@@ -144,31 +202,37 @@ in
     unstable.pngcrush
     unstable.pngout
     unstable.pngquant
-    #unstable.svgo
+    # unstable.svgo
     # END
+    iftop
     inotify-tools
+    unstable.isync
     jq
     jnettop
     kbfs
     ksshaskpass
     kdenlive
     kdiff3
- #   keychain
+    # keychain
     keybase
     keybase-gui
     unstable.kgpg
     kops
     krita
     unstable.kubectl
-#    kubernetes
+    # kubernetes
     unstable.kubernetes-helm
     libreoffice
+    links
     lsof
     maim
     marble
     mc
     unstable.minikube
     mongodb
+    unstable.neomutt
+    unstable.notmuch
+    unstable.notmuch-mutt
     nox
     unstable.mongodb-compass
     (
@@ -180,8 +244,8 @@ in
     nodePackages.eslint
     nmap
     unstable.nnn
-    obs-studio
-    #octave
+    unstable.obs-studio
+    # octave
     okular
     openarena
     openconnect
@@ -189,46 +253,58 @@ in
     openvpn
     pass
     unstable.pgadmin
+    unstable.pinentry
+    unstable.pinentry-qt
+    unstable.poppler_utils
     unstable.postman
     powertop
+    python-with-my-packages
     unstable.protonvpn-cli
-    #qtpass
+    # qtpass
     ranger
-    #unstable.rescuetime
+    # unstable.rescuetime
     ripgrep
     rustc
     rustup
     rxvt_unicode-with-plugins
     scrot
     unstable.signal-desktop
+    unstable.simplescreenrecorder
     slack
     slop
     sops
     spectacle
-#    stalonetray
-    unstable.standardnotes
+    # stalonetray
+    # unstable.standardnotes
     sqlite
+    unstable.syncthing
+    unstable.taskwarrior
     unstable.tdesktop
     unstable.terminator
-#    termite
-    terraform_0_12
+    # termite
+    unstable.terraform
     thunderbird
     tigervnc
+    unstable.timewarrior
     tmux
     unstable.todoist
+    unstable.tor-browser-bundle-bin
     tree
     udisks2
     unzip
     upower
-#    vagrant
+    # vagrant
+    unstable.veracrypt
     unstable.vscode
     (
       import ./vim.nix
     )
-#    unstable.virtualbox
+    # unstable.virtualbox
+    unstable.vit
     vlc
     wget
     which
+    (wine.override { wineBuild = "wineWow"; })
     xcompmgr
     xorg.xbacklight
     xclip
@@ -243,8 +319,9 @@ in
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.bash.enableCompletion = true;
-  # programs.mtr.enable = true;
+  programs.mtr.enable = true;
   # programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
+  programs.gnupg.agent = { enable = true; };
 
   # List services that you want to enable:
 
@@ -312,7 +389,7 @@ in
   services.xserver.desktopManager.plasma5.enable = true;
 
   # Enable Emacs Server
-  services.emacs.enable = true;
+  # services.emacs.enable = true;
 
   # Enable Postgesql service
   services.postgresql.enable = true;
