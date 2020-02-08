@@ -85,6 +85,29 @@
       export FZF_DEFAULT_COMMAND='rg --files --hidden'
       eval "$(${pkgs.direnv}/bin/direnv hook zsh)"
 
+      nixify() {
+        if [ ! -e ./.envrc ]; then
+          echo "use nix" > .envrc
+          direnv allow
+        fi
+        if [ ! -e default.nix ]; then
+          cat > default.nix <<'EOF'
+      let
+        # unstable = import (fetchTarball https://nixos.org/channels/nixos-unstable/nixexprs.tar.xz) { };
+        unstable = import <nixos-unstable> {};
+      in
+        with import <nixpkgs> {};
+        stdenv.mkDerivation {
+          name = "env";
+          buildInputs = [
+            unstable.gitFull
+          ];
+        }
+      EOF
+          $EDITOR default.nix
+        fi
+      }
+
     '';
   };
 }

@@ -30,51 +30,21 @@ in
       #./ipfs.nix
     ];
 
-  # Supposedly better for the SSD.
-  fileSystems."/".options = [ "noatime" "nodiratime" "discard" ];
-
-  # Enable OpenGL support
-  hardware.opengl = {
-    enable = true;
-    extraPackages = with pkgs; [
-      vaapiIntel
-      vaapiVdpau
-      libvdpau-va-gl
-      intel-media-driver # only available starting nixos-19.03 or the current nixos-unstable
-    ];
-    driSupport32Bit = true;
-    extraPackages32 = with pkgs.pkgsi686Linux; [ libva ];
-  };
-
-  hardware.pulseaudio = {
-    enable = true;
-    support32Bit = true;
-  };
-
-  # Make your audio card the default ALSA card
-  boot.extraModprobeConfig = ''
-    options snd slots=snd-hda-intel
-  '';
-
-  # Disable PC Speaker "audio card"
-  boot.blacklistedKernelModules = [ "snd_pcsp" "nouveau" ];
+  # ZFS
+  boot.initrd.supportedFilesystems = [ "zfs" ];
+  boot.supportedFilesystems = [ "zfs" ];
+  boot.zfs.enableUnstable = true;
+  services.zfs.autoScrub.enable = true;
+  services.zfs.trim.enable = true;
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Mount our encrypted partition before looking for LVM
-  boot.initrd.luks.devices = [
-    {
-      name = "root";
-      device = "/dev/disk/by-uuid/42f39571-ac38-4678-9fd0-4c2dd067efd2";
-      preLVM = true;
-      allowDiscards = true;
-    }
-  ];
-
-  networking.hostName = "dukuduku"; # Define your hostname.
-#  networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  # networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "speskop";
+  networking.hostId = "abcdef01";
+  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking.networkmanager.enable = true;
   networking.extraHosts =
   ''
@@ -82,6 +52,16 @@ in
     54.154.251.216 privyseal-docker2
   '';
 
+  # The global useDHCP flag is deprecated, therefore explicitly set to false here.
+  # Per-interface useDHCP will be mandatory in the future, so this generated config
+  # replicates the default behaviour.
+  networking.useDHCP = false;
+  networking.interfaces.enp0s20f0u2u4.useDHCP = true;
+  networking.interfaces.wlp2s0.useDHCP = true;
+
+  # Configure network proxy if necessary
+  # networking.proxy.default = "http://user:password@proxy:port/";
+  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Select internationalisation properties.
   i18n = {
@@ -93,6 +73,7 @@ in
   # Set your time zone.
   time.timeZone = "Africa/Johannesburg";
 
+  # Nixos nixpkgs config.
   nixpkgs.config = {
     # Allow unfree so we can get firefox-dev, etc.
     allowUnfree = true;
@@ -106,14 +87,14 @@ in
     };
   };
 
-  # Enable periodic automatic GC
+  # Enable periodic automatic GC.
   nix.gc = {
     automatic = true;
     dates = "weekly";
     options = "--delete-older-than 30d";
   };
 
-  # Enable Syncthing
+  # Enable Syncthing.
   services.syncthing = {
       enable = true;
       dataDir = "/home/kgf/Desktop/Syncthing";
@@ -124,16 +105,16 @@ in
   };
 
 
-  # Enable TOR
+  # Enable TOR.
   # services.tor = {
   #     enable = true;
   #     client.enable = true;
   #     controlPort = 9051;
   # };
 
-  # List packages installed in system profile. To search by name, run:
-  # $ nix-env -qaP | grep wget
-  environment.systemPackages = (with pkgs; [
+  # List packages installed in system profile. To search, run:
+  # $ nix search wget
+  environment.systemPackages = with pkgs; [
     ag
     unstable.alacritty
     unstable.any-nix-shell
@@ -253,6 +234,7 @@ in
     openvpn
     pass
     unstable.pgadmin
+    unstable.pgmanage
     unstable.pinentry
     unstable.pinentry-qt
     unstable.poppler_utils
@@ -314,27 +296,23 @@ in
     zathura
     zeal
     zoom-us
-  ]);
+  ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
-  # programs.bash.enableCompletion = true;
   programs.mtr.enable = true;
-  # programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
-  programs.gnupg.agent = { enable = true; };
+  programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
+  # programs.gnupg.agent = { enable = true; };
 
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-  programs.ssh.startAgent = true;
+  # services.openssh.permitRootLogin = "yes";
+  # programs.ssh.startAgent = true;
 
-  # Enable virtualisation - otherwise get missing vboxdrv error
+  # Enable virtualisation - otherwise we get missing vboxdrv error
   virtualisation.virtualbox.host.enable = true;
-
-  # Enable upower service - used by taffybar's battery widget
-  services.upower.enable = true;
-  powerManagement.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -342,11 +320,11 @@ in
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
-  # The locate service for finding files in the nix-store quickly.
-  services.locate.enable = true;
-
   # Enable CUPS to print documents.
   services.printing.enable = true;
+
+  # The locate service for finding files in the nix-store quickly.
+  services.locate.enable = true;
 
   # Avahi is used for finding other devices on the network.
   services.avahi.enable = true;
@@ -355,30 +333,45 @@ in
   # Enable TLP for optimal power saving
   services.tlp.enable = true;
 
+  # This will save you money and possibly your life!
+  services.thermald.enable = true;
+
+  # Enable OpenGL support
+  environment.variables = {
+    MESA_LOADER_DRIVER_OVERRIDE = "iris";
+  };
+  hardware.opengl = {
+    enable = true;
+    package = (pkgs.mesa.override {
+      galliumDrivers = [ "nouveau" "virgl" "swrast" "iris" ];
+    }).drivers;
+    extraPackages = with pkgs; [
+      vaapiIntel
+      vaapiVdpau
+      libvdpau-va-gl
+      intel-media-driver
+    ];
+   driSupport32Bit = true;
+   extraPackages32 = with pkgs.pkgsi686Linux; [ libva ];
+  };
+
+  # Enable sound.
+  sound.enable = true;
+  hardware.pulseaudio.enable = true;
+
+  # Make your audio card the default ALSA card
+  boot.extraModprobeConfig = ''
+    options snd slots=snd-hda-intel
+  '';
+
+  # Disable PC Speaker "audio card"
+  boot.blacklistedKernelModules = [ "snd_pcsp" ];
+
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.xserver.layout = "us";
-  #services.xserver.desktopManager.default = "none";
-  #services.xserver.desktopManager.xterm.enable = false;
-  # Try SLiM as the display manager
-  #services.xserver.displayManager.slim.defaultUser = "kgf";
-  # services.xserver.displayManager.lightdm.enable = true;
-  #services.xserver.displayManager.sessionCommands = ''
-  #  ${pkgs.xlibs.xset}/bin/xset r rate 200 60  # set the keyboard repeat rate
-  #  ${pkgs.xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr # Set cursor
-    #${pkgs.feh}/bin/feh --no-fehbg --bg-tile ~/background.png &
-  #'';
-  # services.xserver.xkbOptions = "ctrl:nocaps";
-  # services.xserver.xkbOptions = "ctrl:swapcaps";
-  services.xserver.xkbOptions = "caps:swapescape";
   # services.xserver.xkbOptions = "eurosign:e";
-
-  # Enable xmonad
-  #services.xserver.windowManager.default = "xmonad";
-  #services.xserver.windowManager.xmonad = {
-  #  enable = true;
-  #  enableContribAndExtras = true;
-  #};
+  # services.xserver.xkbOptions = "caps:swapescape";
 
   # Enable touchpad support.
   services.xserver.libinput.enable = true;
@@ -418,9 +411,9 @@ in
 #  };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  # users.extraUsers.guest = {
+  # users.users.jane = {
   #   isNormalUser = true;
-  #   uid = 1000;
+  #   extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
   # };
   users.extraUsers.kgf = {
     createHome = true;
