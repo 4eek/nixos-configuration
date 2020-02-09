@@ -135,6 +135,7 @@ in
     google-chrome
     cifs-utils
     cryptsetup
+    unstable.dbeaver
     dialog
     direnv
     unstable.discord
@@ -188,6 +189,7 @@ in
     iftop
     inotify-tools
     unstable.isync
+    unstable.jetbrains.datagrip
     jq
     jnettop
     kbfs
@@ -233,8 +235,8 @@ in
     openconnect_openssl
     openvpn
     pass
-    unstable.pgadmin
-    unstable.pgmanage
+    # unstable.pgadmin
+    # unstable.pgmanage
     unstable.pinentry
     unstable.pinentry-qt
     unstable.poppler_utils
@@ -249,6 +251,7 @@ in
     rustc
     rustup
     rxvt_unicode-with-plugins
+    unstable.s3fs
     scrot
     unstable.signal-desktop
     unstable.simplescreenrecorder
@@ -257,7 +260,7 @@ in
     sops
     spectacle
     # stalonetray
-    # unstable.standardnotes
+    unstable.standardnotes
     sqlite
     unstable.syncthing
     unstable.taskwarrior
@@ -370,6 +373,7 @@ in
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.xserver.layout = "us";
+  services.xserver.dpi = 96;
   # services.xserver.xkbOptions = "eurosign:e";
   # services.xserver.xkbOptions = "caps:swapescape";
 
