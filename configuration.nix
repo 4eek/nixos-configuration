@@ -56,7 +56,7 @@ in
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
   networking.useDHCP = false;
-  networking.interfaces.enp0s20f0u2u4.useDHCP = true;
+  # networking.interfaces.enp0s20f0u2u4.useDHCP = true;
   networking.interfaces.wlp2s0.useDHCP = true;
 
   # Configure network proxy if necessary
@@ -140,6 +140,7 @@ in
     direnv
     unstable.discord
     # dmenu
+    unstable.doas
     unstable.dropbox
     unstable.dropbox-cli
     emacs
@@ -186,6 +187,7 @@ in
     unstable.pngquant
     # unstable.svgo
     # END
+    unstable.inkscape
     iftop
     inotify-tools
     unstable.isync
@@ -253,6 +255,7 @@ in
     rxvt_unicode-with-plugins
     unstable.s3fs
     scrot
+    unstable.siege
     unstable.signal-desktop
     unstable.simplescreenrecorder
     slack
@@ -275,6 +278,7 @@ in
     unstable.todoist
     unstable.tor-browser-bundle-bin
     tree
+    unstable.tsung
     udisks2
     unzip
     upower
@@ -304,15 +308,15 @@ in
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   programs.mtr.enable = true;
-  programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
-  # programs.gnupg.agent = { enable = true; };
+  # programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
+  programs.gnupg.agent = { enable = true; };
 
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
   # services.openssh.permitRootLogin = "yes";
-  # programs.ssh.startAgent = true;
+  programs.ssh.startAgent = true;
 
   # Enable virtualisation - otherwise we get missing vboxdrv error
   virtualisation.virtualbox.host.enable = true;
@@ -333,11 +337,19 @@ in
   services.avahi.enable = true;
   services.avahi.nssmdns = true;
 
+  # Enable upower service
+  services.upower.enable = true;
+  powerManagement.enable = true;
+
   # Enable TLP for optimal power saving
   services.tlp.enable = true;
 
   # This will save you money and possibly your life!
   services.thermald.enable = true;
+
+  # To perform firmware upgrades just activate the service.
+  # Then use fwupdmgr to perform updates.
+  services.fwupd.enable = true;
 
   # Enable OpenGL support
   environment.variables = {
