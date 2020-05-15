@@ -27,8 +27,10 @@ in
       ./fonts.nix
       ./zsh.nix
       #./k8s.nix
-      #./ipfs.nix
+      ./ipfs.nix
     ];
+
+  boot.extraModulePackages = [ config.boot.kernelPackages.wireguard ];
 
   # ZFS
   boot.initrd.supportedFilesystems = [ "zfs" ];
@@ -118,6 +120,7 @@ in
     ag
     unstable.alacritty
     unstable.any-nix-shell
+    unstable.android-studio
     arandr
     aria2
     ark
@@ -127,12 +130,15 @@ in
     ansible
     awscli
     bind
+    # unstable.binutils
+    unstable.brave
+    unstable.broot
     cabal2nix
     cabal-install
     calibre
-    cargo
-    chromium
-    google-chrome
+    unstable.ccache
+    # chromium
+    # google-chrome
     cifs-utils
     cryptsetup
     unstable.dbeaver
@@ -143,7 +149,7 @@ in
     unstable.doas
     unstable.dropbox
     unstable.dropbox-cli
-    emacs
+    # emacs
     encfs
     evince
     exa
@@ -151,13 +157,14 @@ in
     fasd
     # feh
     ffmpeg
-    firefox
-    firefox-devedition-bin
+    unstable.firefox
+    # firefox-devedition-bin
     frei0r
     fzf
     gcc
     gettext
     ghc
+    unstable.gimp-with-plugins
     unstable.gitAndTools.gitFull
     unstable.gitAndTools.git-extras
     unstable.gitAndTools.gita
@@ -166,10 +173,11 @@ in
     unstable.gitAndTools.tig
     unstable.gitAndTools.gitAnnex
     unstable.gitAndTools.diff-so-fancy
-    unstable.gitAndTools.grv
+    gitAndTools.grv
     unstable.git-repo-updater
     glxinfo
     gnumake
+    unstable.gnumeric
     gnupg
     go
     unstable.helmfile
@@ -191,24 +199,25 @@ in
     iftop
     inotify-tools
     unstable.isync
-    unstable.jetbrains.datagrip
+    # unstable.jetbrains.datagrip
     jq
     jnettop
-    kbfs
     ksshaskpass
     kdenlive
     kdiff3
     # keychain
-    keybase
+    # unstable.kbfs
+    # unstable.keybase
     keybase-gui
     unstable.kgpg
-    kops
+    # kops
     krita
     unstable.kubectl
     # kubernetes
-    unstable.kubernetes-helm
+    # unstable.kubernetes-helm
     libreoffice
     links
+    # unstable.llvm_10
     lsof
     maim
     marble
@@ -224,6 +233,7 @@ in
       import ./neovim.nix
     )
     networkmanagerapplet
+    unstable.ninja
     nix-prefetch-scripts
     nodejs
     nodePackages.eslint
@@ -237,21 +247,21 @@ in
     openconnect_openssl
     openvpn
     pass
+    pciutils
     # unstable.pgadmin
     # unstable.pgmanage
     unstable.pinentry
     unstable.pinentry-qt
     unstable.poppler_utils
     unstable.postman
-    powertop
+    unstable.powertop
     python-with-my-packages
     unstable.protonvpn-cli
+    unstable.qemu_kvm
     # qtpass
     ranger
     # unstable.rescuetime
     ripgrep
-    rustc
-    rustup
     rxvt_unicode-with-plugins
     unstable.s3fs
     scrot
@@ -270,7 +280,7 @@ in
     unstable.tdesktop
     unstable.terminator
     # termite
-    unstable.terraform
+    # unstable.terraform
     thunderbird
     tigervnc
     unstable.timewarrior
@@ -281,28 +291,30 @@ in
     unstable.tsung
     udisks2
     unzip
-    upower
     # vagrant
     unstable.veracrypt
-    unstable.vscode
+    unstable.vscode-with-extensions
     (
       import ./vim.nix
     )
     # unstable.virtualbox
     unstable.vit
     vlc
+    # unstable.wasm-pack
+    unstable.wireguard
+    unstable.wireguard-tools
     wget
     which
     (wine.override { wineBuild = "wineWow"; })
     xcompmgr
     xorg.xbacklight
     xclip
+    unstable.libxml2 # xmllint
     xorg.xev
     xscreensaver
     yarn
     zathura
     zeal
-    zoom-us
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
