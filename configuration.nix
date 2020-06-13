@@ -26,8 +26,9 @@ in
       ./bluetooth.nix
       ./fonts.nix
       ./zsh.nix
-      #./k8s.nix
-      ./ipfs.nix
+      # ./k8s.nix
+      # ./ipfs.nix
+      # ./keybase.nix
     ];
 
   boot.extraModulePackages = [ config.boot.kernelPackages.wireguard ];
@@ -106,7 +107,6 @@ in
       guiAddress = "0.0.0.0:8384";
   };
 
-
   # Enable TOR.
   # services.tor = {
   #     enable = true;
@@ -175,6 +175,7 @@ in
     unstable.gitAndTools.diff-so-fancy
     gitAndTools.grv
     unstable.git-repo-updater
+    unstable.glow
     glxinfo
     gnumake
     unstable.gnumeric
@@ -203,12 +204,11 @@ in
     jq
     jnettop
     ksshaskpass
+    kdeApplications.kruler
     kdenlive
     kdiff3
-    # keychain
-    # unstable.kbfs
-    # unstable.keybase
     keybase-gui
+    # keychain
     unstable.kgpg
     # kops
     krita
@@ -261,6 +261,7 @@ in
     # qtpass
     ranger
     # unstable.rescuetime
+    unstable.riot-desktop
     ripgrep
     rxvt_unicode-with-plugins
     unstable.s3fs
@@ -272,6 +273,7 @@ in
     slop
     sops
     spectacle
+    unstable.speedtest-cli
     # stalonetray
     unstable.standardnotes
     sqlite
@@ -332,6 +334,10 @@ in
 
   # Enable virtualisation - otherwise we get missing vboxdrv error
   virtualisation.virtualbox.host.enable = true;
+
+  # Enable Keybase services
+  services.keybase.enable = true;
+  services.kbfs.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -423,13 +429,23 @@ in
     host    all             all             ::1/128                 trust
   '';
 
-  # Enable Keybase services
-  services.keybase.enable = true;
-  services.kbfs.enable = true;
-
   # Enable docker for container management.
   # This only enables the service, but does not add users to the docker group.
   virtualisation.docker.enable = true;
+
+  # Enable Redshift
+  location.provider = "geoclue2";
+  services.redshift = {
+    enable = true;
+    brightness = {
+      day = "1";
+      night = "1";
+    };
+    temperature = {
+      day = 5500;
+      night = 3700;
+    };
+  };
 
   # Enable Kubernetes
 #  services.kubernetes = {
