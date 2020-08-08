@@ -67,9 +67,9 @@ in
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Select internationalisation properties.
+  console.font = "latarcyrheb-sun32";
+  console.keyMap = "us";
   i18n = {
-    consoleFont = "latarcyrheb-sun32";
-    consoleKeyMap = "us";
     defaultLocale = "en_GB.UTF-8";
   };
 
@@ -80,7 +80,7 @@ in
   nixpkgs.config = {
     # Allow unfree so we can get firefox-dev, etc.
     allowUnfree = true;
-    #allowBroken = true;
+    # allowBroken = true;
     # Allow usage of packages from nixos-unstable
     packageOverrides = pkgs: {
       unstable = import unstableTarball {
@@ -135,6 +135,7 @@ in
     unstable.broot
     cabal2nix
     cabal-install
+    unstable.calcurse
     calibre
     unstable.ccache
     # chromium
@@ -144,7 +145,7 @@ in
     unstable.dbeaver
     dialog
     direnv
-    unstable.discord
+    # unstable.discord
     # dmenu
     unstable.doas
     unstable.dropbox
@@ -181,7 +182,7 @@ in
     unstable.gnumeric
     gnupg
     go
-    unstable.helmfile
+    # unstable.helmfile
     htop
     # START image_optim
     unstable.image_optim
@@ -215,6 +216,7 @@ in
     unstable.kubectl
     # kubernetes
     # unstable.kubernetes-helm
+    unstable.lf
     libreoffice
     links
     # unstable.llvm_10
@@ -252,6 +254,7 @@ in
     # unstable.pgmanage
     unstable.pinentry
     unstable.pinentry-qt
+    plasma-browser-integration
     unstable.poppler_utils
     unstable.postman
     unstable.powertop
@@ -259,27 +262,29 @@ in
     unstable.protonvpn-cli
     unstable.qemu_kvm
     # qtpass
+    unstable.rage
     ranger
     # unstable.rescuetime
-    unstable.riot-desktop
+    unstable.element-desktop
     ripgrep
     rxvt_unicode-with-plugins
     unstable.s3fs
+    unstable.sc-im
     scrot
     unstable.siege
     unstable.signal-desktop
     unstable.simplescreenrecorder
-    slack
+    # slack
     slop
     sops
     spectacle
     unstable.speedtest-cli
     # stalonetray
-    unstable.standardnotes
+    # unstable.standardnotes
     sqlite
     unstable.syncthing
     unstable.taskwarrior
-    unstable.tdesktop
+    # unstable.tdesktop
     unstable.terminator
     # termite
     # unstable.terraform
@@ -473,6 +478,6 @@ in
   # compatible, in order to avoid breaking some software such as database
   # servers. You should change this only after NixOS release notes say you
   # should.
-  system.stateVersion = "19.09"; # Did you read the comment?
+  system.stateVersion = "20.03"; # Did you read the comment?
 
 }
